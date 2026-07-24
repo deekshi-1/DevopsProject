@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { getMessage } from "./api";
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
@@ -9,13 +10,9 @@ function App() {
 
   // Fetch data from the backend when the component loads
   useEffect(() => {
-    fetch('http://localhost:7000/api/message')
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch((err) => {
-        console.error("Error fetching data:", err);
-        setMessage("Failed to connect to backend.");
-      });
+    getMessage()
+        .then((data)=>setMessage(data.message))
+        .catch(()=>setMessage("Backend Error"));
   }, []);
 
 
