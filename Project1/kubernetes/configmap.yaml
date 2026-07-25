@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: backend-config
+  namespace: webapp
+
+data:
+  NODE_ENV: production
+  PORT: "7000"
