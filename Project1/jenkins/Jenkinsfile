@@ -1,0 +1,104 @@
+pipeline {
+    agent any
+
+    environment {
+        FRONTEND_IMAGE = "deekshithc1/frontend"
+        BACKEND_IMAGE  = "deekshithc1/backend"
+        NAMESPACE      = "webapp"
+    }
+
+    stages {
+        stage("Checkout Source") {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage("Secret Detection - Gitleaks") {
+            steps {
+                sh "bash scripts/01-gitleaks.sh"
+            }
+        }
+
+        stage("SonarQube Analysis") {
+            steps {
+                script {
+                    def scannerHome = tool "SonarScanner"
+                    withSonarQubeEnv("SonarQube") {
+                        sh "SCANNER_HOME=${scannerHome} bash scripts/02-sonar-scan.sh"
+                    }
+                }
+            }
+        }
+
+        stage("SonarQube Quality Gate") {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage("Build Docker Images") {
+            steps {
+                sh "bash scripts/03-docker-build.sh"
+            }
+        }
+
+        stage("Trivy Image Scan") {
+            steps {
+                sh "bash scripts/04-trivy-scan.sh"
+            }
+        }
+
+        stage("DockerHub Login") {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh "bash scripts/05-docker-login.sh"
+                }
+            }
+        }
+
+        stage("Push Docker Images") {
+            steps {
+                sh "bash scripts/06-docker-push.sh"
+            }
+        }
+
+        stage("Deploy to Kubernetes") {
+            steps {
+                withKubeConfig(credentialsId: 'my-kubeconfig') {
+                    sh "bash scripts/07-k8s-deploy.sh"
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "======================================="
+            echo "Pipeline Completed Successfully"
+            echo "Frontend Image : ${FRONTEND_IMAGE}:${BUILD_NUMBER}"
+            echo "Backend Image  : ${BACKEND_IMAGE}:${BUILD_NUMBER}"
+            echo "Application deployed successfully."
+            echo "======================================="
+        }
+        failure {
+            echo "======================================="
+            echo "Pipeline Failed"
+            echo "Rolling back deployments..."
+            echo "======================================="
+            withKubeConfig(credentialsId: 'my-kubeconfig') {
+                sh "bash scripts/08-k8s-rollback.sh"
+            }
+        }
+        always {
+            sh "bash scripts/09-cleanup.sh"
+            echo "Pipeline Finished"
+        }
+    }
+}

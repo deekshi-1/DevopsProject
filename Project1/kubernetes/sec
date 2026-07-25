@@ -1,0 +1,5 @@
+kubectl create secret docker-registry dockerhub-secret \
+--docker-username=YOUR_USERNAME \
+--docker-password=YOUR_PASSWORD \
+--docker-email=YOUR_EMAIL \
+-n webapp
