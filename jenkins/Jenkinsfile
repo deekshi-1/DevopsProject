@@ -17,7 +17,7 @@ pipeline {
         stage("Secret Detection - Gitleaks") {
             steps {
                 sh "pwd && ls -la"
-                sh "bash scripts/gitleaks.sh"
+                sh "bash scripts/git-leaks.sh"
             }
         }
 
@@ -26,7 +26,7 @@ pipeline {
                 script {
                     def scannerHome = tool "SonarScanner"
                     withSonarQubeEnv("SonarQube") {
-                        sh "SCANNER_HOME=${scannerHome} bash scripts/sonarscan.sh"
+                        sh "SCANNER_HOME=${scannerHome} bash scripts/sonar-scan.sh"
                     }
                 }
             }
@@ -66,14 +66,20 @@ pipeline {
 
         stage("Push Docker Images") {
             steps {
-                sh "bash scripts/06-docker-push.sh"
+                sh "bash scripts/dockesr-push.sh"
             }
         }
 
         stage("Deploy to Kubernetes") {
             steps {
                 withKubeConfig(credentialsId: 'my-kubeconfig') {
-                    sh "bash scripts/07-k8s-deploy.sh"
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh "bash scripts/k8s-deploy.sh"
+                    }
                 }
             }
         }
@@ -94,11 +100,11 @@ pipeline {
             echo "Rolling back deployments..."
             echo "======================================="
             withKubeConfig(credentialsId: 'my-kubeconfig') {
-                sh "bash scripts/08-k8s-rollback.sh"
+                sh "bash scripts/k8s-rollback.sh"
             }
         }
         always {
-            sh "bash scripts/09-cleanup.sh"
+            sh "bash scripts/cleanup.sh"
             echo "Pipeline Finished"
         }
     }

@@ -2,6 +2,14 @@
 set -e
 
 kubectl apply -f kubernetes/namespace.yaml
+
+kubectl create secret docker-registry dockerhub-secret \
+  --docker-username="${DOCKER_USER}" \
+  --docker-password="${DOCKER_PASS}" \
+  --docker-email="${DOCKER_EMAIL:-user@example.com}" \
+  -n "${NAMESPACE}" \
+  --dry-run=client -o yaml | kubectl apply -f -
+
 kubectl apply -f kubernetes/secret.yaml
 kubectl apply -f kubernetes/configmap.yaml
 kubectl apply -f kubernetes/backend-deployment.yaml
