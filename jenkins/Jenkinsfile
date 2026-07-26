@@ -66,7 +66,7 @@ pipeline {
 
         stage("Push Docker Images") {
             steps {
-                sh "bash scripts/dockesr-push.sh"
+                sh "bash scripts/docker-push.sh"
             }
         }
 
