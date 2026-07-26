@@ -16,7 +16,7 @@ pipeline {
 
         stage("Secret Detection - Gitleaks") {
             steps {
-                sh "bash scripts/01-gitleaks.sh"
+                sh "bash scripts/gitleaks.sh"
             }
         }
 
@@ -25,7 +25,7 @@ pipeline {
                 script {
                     def scannerHome = tool "SonarScanner"
                     withSonarQubeEnv("SonarQube") {
-                        sh "SCANNER_HOME=${scannerHome} bash scripts/02-sonar-scan.sh"
+                        sh "SCANNER_HOME=${scannerHome} bash scripts/sonarscan.sh"
                     }
                 }
             }
@@ -41,13 +41,13 @@ pipeline {
 
         stage("Build Docker Images") {
             steps {
-                sh "bash scripts/03-docker-build.sh"
+                sh "bash scripts/docker-build.sh"
             }
         }
 
         stage("Trivy Image Scan") {
             steps {
-                sh "bash scripts/04-trivy-scan.sh"
+                sh "bash scripts/trivy-scan.sh"
             }
         }
 
@@ -58,7 +58,7 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh "bash scripts/05-docker-login.sh"
+                    sh "bash scripts/docker-login.sh"
                 }
             }
         }
