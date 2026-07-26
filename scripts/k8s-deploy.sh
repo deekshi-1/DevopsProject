@@ -7,10 +7,8 @@ kubectl create secret docker-registry dockerhub-secret \
   --docker-username="${DOCKER_USER}" \
   --docker-password="${DOCKER_PASS}" \
   --docker-email="${DOCKER_EMAIL:-user@example.com}" \
-  -n "${NAMESPACE}" \
-  --dry-run=client -o yaml | kubectl apply -f -
+  -n webapp
 
-kubectl apply -f kubernetes/secret.yaml
 kubectl apply -f kubernetes/configmap.yaml
 kubectl apply -f kubernetes/backend-deployment.yaml
 kubectl apply -f kubernetes/backend-service.yaml
