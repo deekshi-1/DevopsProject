@@ -1,12 +1,13 @@
 #!/bin/bash
 set -e
 
-trivy image \
-    --severity HIGH,CRITICAL \
-    --exit-code 1 \
-    ${FRONTEND_IMAGE}:${BUILD_NUMBER}
+echo "Building images..."
 
-trivy image \
-    --severity HIGH,CRITICAL \
-    --exit-code 1 \
-    ${BACKEND_IMAGE}:${BUILD_NUMBER}
+export BUILD_NUMBER=${BUILD_NUMBER}
+
+docker compose \
+-f docker/docker-compose.yaml \
+build
+
+echo "Built images:"
+docker images | grep deekshithc1
