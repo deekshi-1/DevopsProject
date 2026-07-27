@@ -1,34 +1,63 @@
 import { useState, useEffect } from 'react'
 import { getMessage } from "./api";
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
 function App() {
   const [message, setMessage] = useState("Loading...");
+  const [note, setNote] = useState("");
+  const [notes, setNotes] = useState([]);
 
   // Fetch data from the backend when the component loads
   useEffect(() => {
     getMessage()
-        .then((data)=>setMessage(data.message))
-        .catch(()=>setMessage("Backend Error"));
+      .then((data) => setMessage(data.message))
+      .catch(() => setMessage("Backend Error"));
   }, []);
 
+  const addNote = () => {
+    if (note.trim() === "") return;
+
+    setNotes([...notes, note]);
+    setNote("");
+  };
+
+  const removeNote = (index) => {
+    setNotes(notes.filter((_, i) => i !== index));
+  };
 
   return (
     <>
       <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+
         <div>
-          <h1>Get started</h1>
+          <h1>Notes</h1>
         </div>
-        <p>Message from backend "{message}"</p>
+
+        <div className="note-input">
+          <input
+            type="text"
+            placeholder="Enter a note..."
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") addNote();
+            }}
+          />
+
+          <button onClick={addNote}>Add</button>
+        </div>
+
+        <ul className="notes-list">
+          {notes.map((item, index) => (
+            <li key={index}>
+              <span>{item}</span>
+              <button onClick={() => removeNote(index)}>X</button>
+            </li>
+          ))}
+        </ul>
+
       </section>
+
       <div className="ticks"></div>
     </>
   )
