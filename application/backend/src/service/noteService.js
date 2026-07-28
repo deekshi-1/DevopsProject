@@ -1,14 +1,19 @@
-const Note = require('../models/note');
+const Note = require("../models/Note");
 
-const getall = () => Note.find().sort({ createdAt: -1 });
-
-const create = (message) => Note.create({ message });
-
-const remove = (id) => Note.findByIdAndDelete(id);
-
-module.exports = {
-    getall,
-    create,
-    remove
+const getall = async () => {
+  return await Note.find().sort({ createdAt: -1 });
 };
 
+const create = async (message) => {
+  return await Note.create({ message });
+};
+
+const remove = async (id) => {
+  return await Note.findByIdAndDelete(id);
+};
+
+module.exports = {
+  getall,
+  create,
+  remove,
+};
