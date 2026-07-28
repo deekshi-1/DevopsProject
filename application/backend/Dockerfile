@@ -14,4 +14,4 @@ USER appuser
 
 EXPOSE 7000
 
-CMD ["node", "server.js"]
+CMD ["node", "src/server.js"]
