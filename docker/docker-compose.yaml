@@ -1,8 +1,5 @@
-version: "3.9"
-
 services:
   frontend:
-    image: deekshithc1/frontend:${BUILD_NUMBER}
     build:
       context: ../application/frontend
       dockerfile: Dockerfile
@@ -18,7 +15,6 @@ services:
       - app_network
 
   backend:
-    image: deekshithc1/backend:${BUILD_NUMBER}
     build:
       context: ../application/backend
       dockerfile: Dockerfile
