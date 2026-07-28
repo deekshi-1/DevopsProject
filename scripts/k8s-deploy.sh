@@ -9,11 +9,11 @@ kubectl create secret generic backend-secret \
 --dry-run=client \
 -o yaml | kubectl apply -f -
 
-kubectl apply -f kubernetes/configmap.yaml
-kubectl apply -f kubernetes/backend-deployment.yaml
-kubectl apply -f kubernetes/backend-service.yaml
-kubectl apply -f kubernetes/frontend-deployment.yaml
-kubectl apply -f kubernetes/frontend-service.yaml
+kubectl apply -f kubernetes/backend/configmap.yaml
+kubectl apply -f kubernetes/backend/backend-deployment.yaml
+kubectl apply -f kubernetes/backend/backend-service.yaml
+kubectl apply -f kubernetes/frontend/frontend-deployment.yaml
+kubectl apply -f kubernetes/frontend/frontend-service.yaml
 kubectl apply -f kubernetes/ingress.yaml
 
 kubectl set image deployment/backend backend=${BACKEND_IMAGE}:${BUILD_NUMBER} -n ${NAMESPACE}
