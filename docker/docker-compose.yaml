@@ -6,6 +6,8 @@ services:
     build:
       context: ../application/frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:7000
     container_name: frontend
     ports:
       - "3000:80"
@@ -25,8 +27,9 @@ services:
       - "7000:7000"
     restart: unless-stopped
     environment:
-      NODE_ENV: production
       PORT: 7000
+      NODE_ENV: development
+      MONGO_URI: mongodb+srv://devuser:1234@cluster0.udec97z.mongodb.net/?appName=Cluster0
     networks:
       - app_network
 
