@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getMessage } from "./api";
+import { healthCheck } from "./api";
 import './App.css'
 
 function App() {
@@ -9,10 +9,16 @@ function App() {
 
   // Fetch data from the backend when the component loads
   useEffect(() => {
-    getMessage()
-      .then((data) => setMessage(data.message))
-      .catch(() => setMessage("Backend Error"));
-  }, []);
+  healthCheck()
+    .then((data) => {
+      setMessage(
+        `Backend Status: ${data.status}`
+      );
+    })
+    .catch(() => {
+      setMessage("Backend Error");
+    });
+}, []);
 
   const addNote = () => {
     if (note.trim() === "") return;
