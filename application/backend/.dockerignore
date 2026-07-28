@@ -1,7 +1,10 @@
 node_modules
-npm-debug.log
-Dockerfile
-.dockerignore
 .git
 .gitignore
+Dockerfile
+README.md
 .env
+npm-debug.log
+coverage
+logs
+uploads
