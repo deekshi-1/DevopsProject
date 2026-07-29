@@ -1,4 +1,16 @@
 # Deliverables
+
+## Project Webpage
+
+<p align="center">
+  <img src="Screenshots/webapp.png" alt="Web app" width="100%">
+</p>
+<p align="center">
+  <img src="Screenshots/network.png" alt="Network Tab" width="100%">
+</p>
+
+---
+
 <table>
   <tr>
     <th>CI/CD</th>
@@ -122,7 +134,7 @@ For a detailed explanation of the Jenkins pipeline, refer to the [Jenkins README
 ### Pipeline Configuration
 
 <p align="center">
-  <img src="Screenshots/Jenkins/jenkins flowchart.png" alt="Jenkins Pipeline Configuration" width="60%">
+  <img src="Screenshots/Jenkins/jenkins flowchart.png" alt="flowchart" width="60%">
 </p>
 
 ---
@@ -151,7 +163,7 @@ For a detailed explanation of the Jenkins pipeline, refer to the [Jenkins README
 The pipeline includes comprehensive post-build actions to handle successful deployments, failures, cleanup, and Email notification.
 
 <p align="center">
-  <img src="Screenshots/Jenkins/jenkins flowchart.png" alt="Jenkins Pipeline Workflow" width="100%">
+  <img src="Screenshots/Jenkins/pipelineuccess.png" alt="pipeline sucess" width="100%">
 </p>
 
 #### Success
