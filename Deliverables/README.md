@@ -148,7 +148,11 @@ For a detailed explanation of the Jenkins pipeline, refer to the [Jenkins README
 ### Pipeline Notifications
 
 
-The pipeline includes comprehensive post-build actions to handle successful deployments, failures, cleanup, and Microsoft Teams notifications.
+The pipeline includes comprehensive post-build actions to handle successful deployments, failures, cleanup, and Email notification.
+
+<p align="center">
+  <img src="Screenshots/Jenkins/jenkins flowchart.png" alt="Jenkins Pipeline Workflow" width="100%">
+</p>
 
 #### Success
 
@@ -321,6 +325,21 @@ Docker file explanation
 </table>
 
 ## DockerHub
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="Screenshots/DockerHub/backendDockerhub.png" width="500"/>
+    </td>
+    <td align="center">
+      <img src="Screenshots/DockerHub/frontenddockerhub.png" width="500"/>
+    </td>
+  </tr>
+
+</table>
+
+
+
 
 ## SonarQube 
 <p align="center">
