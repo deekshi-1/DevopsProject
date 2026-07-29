@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     environment {
-        FRONTEND_IMAGE = "deekshithc1/webappfrontend"
+        FRONTEND_IMAGE = "deekshithc1/frontend"
         BACKEND_IMAGE  = "deekshithc1/backend"
         NAMESPACE      = "webapp"
 

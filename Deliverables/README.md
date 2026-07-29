@@ -1,4 +1,27 @@
 # Deliverables
+<table>
+  <tr>
+    <th>CI/CD</th>
+    <td><a href="../jenkins/Jenkinsfile">Jenkins Pipeline</a></td>
+  </tr>
+  <tr>
+    <th>Containerization</th>
+    <td>
+      <ul>
+        <li><a href="../docker/docker-compose.yaml">Docker Compose</a></li>
+        <li><a href="../application/frontend/Dockerfile">Frontend Dockerfile</a></li>
+        <li><a href="../application/backend/Dockerfile">Backend Dockerfile</a></li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>Kubernetes</th>
+    <td><a href="../kubernetes/">Kubernetes Manifests</a></td>
+  </tr>
+</table>
+
+
+
 
 ## Architecture Diagram
 
@@ -273,12 +296,105 @@ ___
 ## Docker
 Docker file explanation
 
-  - Frontend  [Dockerfile README](jenkins/README.md).
-  - Backend   [Dockerfile README](jenkins/README.md). 
+### Dockerfiles
 
-Docker Compose Explanation  [Dockerfile README](jenkins/README.md).
+- Frontend: [Dockerfile README](application/frontend/Docker.md)
+- Backend: [Dockerfile README](application/backend/Docker.md)
+
+### Docker Compose
+
+- [Docker Compose README](docker/README.md)
+
+<table>
+<tr>
+    <th>Images</th>
+    <th>Containers</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="Screenshots/Docker/dockerimages.png" width="500"/>
+    </td>
+    <td align="center">
+      <img src="Screenshots/Docker/dockercontainer.png" width="500"/>
+    </td>
+  </tr>
+</table>
+
+## SonarQube 
+<p align="center">
+  <img src="Screenshots/SonarQube/dashboard.png" alt="Sonar dashboard" width="100%">
+</p>
+
+### Integrating sonarqube with jenkins 
+ <table>
+<tr>
+    <th>Token</th>
+    <th>Webhook</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="Screenshots/SonarQube/userToken.png" width="500"/>
+    </td>
+    <td align="center">
+      <img src="Screenshots/SonarQube/weebhook.png" width="500"/>
+    </td>
+  </tr>
+  <tr>
+    <td>
+     <p>Steps</p>
+      <ol>
+        <li>Administration</li>
+        <li>Configuration</li>
+        <li>Webhooks</li>
+      </ol>
+    </td>
+    <td>
+      <p>Steps</p>
+      <ol>
+        <li>My Account</li>
+        <li>User Token</li>
+        <li>Security</li>
+        <li>Generate token</li>
+      </ol>
+    </td>
+  </tr>
+</table>
+
+---
+
+## Kubernetes
+
+The project is deployed on Kubernetes using separate manifests for the namespace, deployments, services, configuration, secrets, and ingress. This setup provides a scalable, production-ready architecture with rolling updates, health checks, secure configuration management, and external traffic routing.
+
+### Manifest Files
+#### `namespace.yaml`
+- Creates the dedicated `webapp` namespace to isolate all application resources.
+
+#### `ingress.yaml`
+- Configures the NGINX Ingress controller to route `/` requests to the frontend and `/api` requests to the backend.
+
+#### `backend-deployment.yaml`
+- Deploys the backend application with multiple replicas, rolling updates, resource limits, health probes, and environment configuration.
+
+#### `backend-service.yaml`
+- Exposes the backend internally using a `ClusterIP` service on port `7000`.
+
+#### `backend-configmap.yaml`
+- Stores non-sensitive backend configuration values such as the application environment and port.
+
+#### `backend-secret.yaml`
+- Creates the backend Secret from environment variables, keeping sensitive data out of source code.
+
+#### `frontend-deployment.yaml`
+- Deploys the frontend application with rolling updates, multiple replicas, resource limits, and health checks.
+
+#### `frontend-service.yaml`
+- Exposes the frontend application using a `NodePort` service, making it accessible within the cluster and through the ingress.
 
 
-
-##
-
+<p align="center">
+  <img src="Screenshots/K8s/k8snodes.png" alt="Enterprise CI/CD Architecture" width="100%">
+</p>
+<p align="center">
+  <img src="Screenshots/K8s/k8snodes.png" alt="Enterprise CI/CD Architecture" width="100%">
+</p>
