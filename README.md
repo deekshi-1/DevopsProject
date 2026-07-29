@@ -31,9 +31,9 @@ The project deliverables are organized inside the deliverables directory:
 
 ## Repository Structure & Branches
 ### To maintain an organized workflow and separate our development environments, this repository utilizes the following branch structure
-- main: The primary branch containing the final, production-ready codebase and the complete project setup.
-- working: Dedicated to local development, deployment, and testing of the 3-tier web application.
-- k8s-testing: Contains the source code, pipelines, and configuration files for deploying the 3-tier web application using Jenkins, Docker, and Kubernetes (K8s).
+- main : The primary branch containing the final, production-ready codebase and the complete project setup.
+- Docker-local : Dedicated to local development, deployment, and testing of the 3-tier web application.
+- K8s: Contains the source code, pipelines, and configuration files for deploying the 3-tier web application using Jenkins, Docker, and Kubernetes (K8s).
 
 ## Documentation
  All comprehensive documentation and detailed explanations of the requested project deliverables can be found in the Deliverables directory.
