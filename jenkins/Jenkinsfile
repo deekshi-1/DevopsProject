@@ -6,9 +6,14 @@ pipeline {
         FRONTEND_IMAGE = "deekshithc1/frontend"
         BACKEND_IMAGE  = "deekshithc1/backend"
         NAMESPACE      = "webapp"
+    }
 
-        // Microsoft Teams Incoming Webhook URL
-        TEAMS_WEBHOOK = "https://outlook.office.com/webhook/..."
+    // ==========================
+    // Automated Build Trigger
+    // ==========================
+    triggers {
+        githubPush()                  // Trigger build on GitHub push
+        // pollSCM('H/5 * * * *')     // Uncomment if webhook is not available
     }
 
     stages {
