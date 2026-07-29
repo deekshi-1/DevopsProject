@@ -171,7 +171,7 @@ ${env.BUILD_URL}
 Regards,
 Jenkins CI/CD
 """,
-                to: "yourgmail@gmail.com"
+                to: "deekshithc1@gmail.com"
             )
         }
 
@@ -221,7 +221,7 @@ Please check Jenkins logs.
 Regards,
 Jenkins CI/CD
 """,
-                to: "yourgmail@gmail.com"
+                to: "deekshithc1@gmail.com"
             )
         }
 
