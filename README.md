@@ -1,5 +1,5 @@
-# DecopsProject
-Welcome to the DecopsProject repository. This project showcases a comprehensive, enterprise-grade 3-tier DevOps implementation 
+# Devops Project 1
+Welcome to the DevopsProject repository. This project showcases a comprehensive, enterprise-grade 3-tier DevOps implementation 
 
 ## 📁Repository Structure
 The project deliverables are organized inside the deliverables directory:
