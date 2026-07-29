@@ -1,35 +1,35 @@
-version: "3.9"
+  version: "3.9"
 
-services:
-  frontend:
-    image: deekshithc1/frontend:${BUILD_NUMBER}
-    build:
-      context: ../application/frontend
-      dockerfile: Dockerfile
-    container_name: frontend
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    restart: unless-stopped
-    networks:
-      - app_network
+  services:
+    frontend:
+      image: deekshithc1/frontend:${BUILD_NUMBER}
+      build:
+        context: ../application/frontend
+        dockerfile: Dockerfile
+      container_name: frontend
+      ports:
+        - "3000:80"
+      depends_on:
+        - backend
+      restart: unless-stopped
+      networks:
+        - app_network
 
-  backend:
-    image: deekshithc1/backend:${BUILD_NUMBER}
-    build:
-      context: ../application/backend
-      dockerfile: Dockerfile
-    container_name: backend
-    ports:
-      - "7000:7000"
-    restart: unless-stopped
-    environment:
-      NODE_ENV: production
-      PORT: 7000
-    networks:
-      - app_network
+    backend:
+      image: deekshithc1/backend:${BUILD_NUMBER}
+      build:
+        context: ../application/backend
+        dockerfile: Dockerfile
+      container_name: backend
+      ports:
+        - "7000:7000"
+      restart: unless-stopped
+      environment:
+        NODE_ENV: production
+        PORT: 7000
+      networks:
+        - app_network
 
-networks:
-  app_network:
-    driver: bridge
+  networks:
+    app_network:
+      driver: bridge

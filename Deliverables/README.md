@@ -298,12 +298,12 @@ Docker file explanation
 
 ### Dockerfiles
 
-- Frontend: [Dockerfile README](application/frontend/Docker.md)
-- Backend: [Dockerfile README](application/backend/Docker.md)
+- Frontend: [Dockerfile README](../application/frontend/Docker.md)
+- Backend: [Dockerfile README](../application/backend/Docker.md)
 
 ### Docker Compose
 
-- [Docker Compose README](docker/README.md)
+- [Docker Compose README](../docker/README.md)
 
 <table>
 <tr>
@@ -319,6 +319,8 @@ Docker file explanation
     </td>
   </tr>
 </table>
+
+## DockerHub
 
 ## SonarQube 
 <p align="center">
@@ -393,8 +395,11 @@ The project is deployed on Kubernetes using separate manifests for the namespace
 
 
 <p align="center">
-  <img src="Screenshots/K8s/k8snodes.png" alt="Enterprise CI/CD Architecture" width="100%">
+  <img src="Screenshots/K8s/k8snodes.png" alt="nodes" width="100%">
 </p>
 <p align="center">
-  <img src="Screenshots/K8s/k8snodes.png" alt="Enterprise CI/CD Architecture" width="100%">
+  <img src="Screenshots/K8s/pods.png" alt="pods" width="100%">
+</p>
+<p align="center">
+  <img src="Screenshots/K8s/rollout.png" alt="rollout" width="100%">
 </p>
