@@ -30,8 +30,7 @@ pipeline {
 
                     withSonarQubeEnv("SonarQube") {
                         sh """
-                        SCANNER_HOME=${scannerHome}
-                        bash scripts/sonar-scan.sh
+                        ${scannerHome}/bin/sonar-scanner
                         """
                     }
                 }
