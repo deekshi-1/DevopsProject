@@ -8,14 +8,6 @@ pipeline {
         NAMESPACE      = "webapp"
     }
 
-    // ==========================
-    // Automated Build Trigger
-    // ==========================
-    triggers {
-        githubPush()                  // Trigger build on GitHub push
-        // pollSCM('H/5 * * * *')     // Uncomment if webhook is not available
-    }
-
     stages {
 
         stage("Checkout Source") {
@@ -38,7 +30,7 @@ pipeline {
 
                     withSonarQubeEnv("SonarQube") {
                         sh """
-                            ${scannerHome}/bin/sonar-scanner
+                        ${scannerHome}/bin/sonar-scanner
                         """
                     }
                 }
@@ -74,6 +66,7 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )
                 ]) {
+
                     sh "bash scripts/docker-login.sh"
                 }
             }
@@ -86,7 +79,9 @@ pipeline {
         }
 
         stage("Deploy to Kubernetes") {
+
             steps {
+
                 withKubeConfig(credentialsId: 'my-kubeconfig') {
 
                     withCredentials([
@@ -98,9 +93,9 @@ pipeline {
                     ]) {
 
                         sh """
-                            export MONGO_URI="mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.udec97z.mongodb.net/?appName=Cluster0"
+                        export MONGO_URI="mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.udec97z.mongodb.net/?appName=Cluster0"
 
-                            bash scripts/k8s-deploy.sh
+                        bash scripts/k8s-deploy.sh
                         """
                     }
                 }
@@ -113,72 +108,97 @@ pipeline {
         success {
 
             echo """
-            =======================================
-            Pipeline Completed Successfully
+=======================================
+Pipeline Completed Successfully
 
-            Frontend Image : ${FRONTEND_IMAGE}:${BUILD_NUMBER}
-            Backend Image  : ${BACKEND_IMAGE}:${BUILD_NUMBER}
+Frontend Image : ${FRONTEND_IMAGE}:${BUILD_NUMBER}
+Backend Image  : ${BACKEND_IMAGE}:${BUILD_NUMBER}
 
-            Application deployed successfully.
-            =======================================
-            """
+Application deployed successfully.
+=======================================
+"""
 
-            office365ConnectorSend(
-                webhookUrl: "${TEAMS_WEBHOOK}",
-                message: """
-✅ *Jenkins Pipeline Succeeded*
+            emailext(
+                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+Hello Team,
 
-**Job:** ${env.JOB_NAME}
-**Build:** #${env.BUILD_NUMBER}
-**Status:** SUCCESS
+The Jenkins pipeline has completed successfully.
 
-Frontend Image:
-${FRONTEND_IMAGE}:${BUILD_NUMBER}
+Job Name      : ${env.JOB_NAME}
+Build Number  : ${env.BUILD_NUMBER}
+Build Status  : SUCCESS
 
-Backend Image:
-${BACKEND_IMAGE}:${BUILD_NUMBER}
+Frontend Image : ${FRONTEND_IMAGE}:${BUILD_NUMBER}
+Backend Image  : ${BACKEND_IMAGE}:${BUILD_NUMBER}
 
 Build URL:
 ${env.BUILD_URL}
-"""
+
+Regards,
+Jenkins CI/CD
+""",
+                to: "team@example.com"
+            )
+
+            // Slack Notification (Requires Slack Plugin)
+            slackSend(
+                channel: '#devops',
+                color: 'good',
+                message: """✅ *Build Successful*
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+URL: ${env.BUILD_URL}"""
             )
         }
 
         failure {
 
             echo """
-            =======================================
-            Pipeline Failed
+=======================================
+Pipeline Failed
 
-            Rolling back deployments...
-            =======================================
-            """
+Rolling back deployments...
+=======================================
+"""
 
-            script {
-                try {
-                    withKubeConfig(credentialsId: 'my-kubeconfig') {
-                        sh "bash scripts/k8s-rollback.sh"
-                    }
-                    echo "Rollback completed successfully."
-                } catch (Exception e) {
-                    echo "Rollback failed: ${e.getMessage()}"
-                }
+            withKubeConfig(credentialsId: 'my-kubeconfig') {
+                sh "bash scripts/k8s-rollback.sh"
             }
 
-            office365ConnectorSend(
-                webhookUrl: "${TEAMS_WEBHOOK}",
-                message: """
-❌ *Jenkins Pipeline Failed*
+            emailext(
+                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+Hello Team,
 
-**Job:** ${env.JOB_NAME}
-**Build:** #${env.BUILD_NUMBER}
-**Status:** FAILURE
+The Jenkins pipeline has failed.
 
-Rollback attempted.
+Job Name      : ${env.JOB_NAME}
+Build Number  : ${env.BUILD_NUMBER}
+Build Status  : FAILED
+
+Rollback has been initiated.
 
 Build URL:
 ${env.BUILD_URL}
-"""
+
+Please check the logs.
+
+Regards,
+Jenkins CI/CD
+""",
+                to: "team@example.com"
+            )
+
+            // Slack Notification (Requires Slack Plugin)
+            slackSend(
+                channel: '#devops',
+                color: 'danger',
+                message: """❌ *Build Failed*
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+Rollback Initiated
+URL: ${env.BUILD_URL}"""
             )
         }
 
@@ -188,20 +208,7 @@ ${env.BUILD_URL}
 
             echo "Pipeline Finished"
 
-            office365ConnectorSend(
-                webhookUrl: "${TEAMS_WEBHOOK}",
-                message: """
-ℹ️ *Pipeline Finished*
-
-**Job:** ${env.JOB_NAME}
-**Build:** #${env.BUILD_NUMBER}
-
-Final Status: ${currentBuild.currentResult}
-
-Build URL:
-${env.BUILD_URL}
-"""
-            )
+            cleanWs()
         }
     }
 }
