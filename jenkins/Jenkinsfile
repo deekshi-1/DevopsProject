@@ -16,49 +16,69 @@ pipeline {
             }
         }
 
+
         stage("Secret Detection - Gitleaks") {
             steps {
-                sh "pwd && ls -la"
-                sh "bash scripts/git-leaks.sh"
+                sh '''
+                    pwd
+                    ls -la
+                    bash scripts/git-leaks.sh
+                '''
             }
         }
+
 
         stage("SonarQube Analysis") {
             steps {
                 script {
+
                     def scannerHome = tool "SonarScanner"
 
                     withSonarQubeEnv("SonarQube") {
+
                         sh """
-                        ${scannerHome}/bin/sonar-scanner
+                            ${scannerHome}/bin/sonar-scanner
                         """
                     }
                 }
             }
         }
 
+
         stage("SonarQube Quality Gate") {
             steps {
+
                 timeout(time: 3, unit: 'MINUTES') {
+
                     waitForQualityGate abortPipeline: true
                 }
             }
         }
 
+
         stage("Build Docker Images") {
             steps {
-                sh "bash scripts/docker-build.sh"
+
+                sh '''
+                    bash scripts/docker-build.sh
+                '''
             }
         }
+
 
         stage("Trivy Image Scan") {
             steps {
-                sh "bash scripts/trivy-scan.sh"
+
+                sh '''
+                    bash scripts/trivy-scan.sh
+                '''
             }
         }
 
+
         stage("DockerHub Login") {
             steps {
+
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub',
@@ -67,16 +87,23 @@ pipeline {
                     )
                 ]) {
 
-                    sh "bash scripts/docker-login.sh"
+                    sh '''
+                        bash scripts/docker-login.sh
+                    '''
                 }
             }
         }
 
+
         stage("Push Docker Images") {
             steps {
-                sh "bash scripts/docker-push.sh"
+
+                sh '''
+                    bash scripts/docker-push.sh
+                '''
             }
         }
+
 
         stage("Deploy to Kubernetes") {
 
@@ -92,18 +119,20 @@ pipeline {
                         )
                     ]) {
 
-                        sh """
-                        export MONGO_URI="mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.udec97z.mongodb.net/?appName=Cluster0"
+                        sh '''
+                            export MONGO_URI="mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.udec97z.mongodb.net/?appName=Cluster0"
 
-                        bash scripts/k8s-deploy.sh
-                        """
+                            bash scripts/k8s-deploy.sh
+                        '''
                     }
                 }
             }
         }
     }
 
+
     post {
+
 
         success {
 
@@ -118,6 +147,7 @@ Application deployed successfully.
 =======================================
 """
 
+
             emailext(
                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
@@ -129,8 +159,11 @@ Job Name      : ${env.JOB_NAME}
 Build Number  : ${env.BUILD_NUMBER}
 Build Status  : SUCCESS
 
-Frontend Image : ${FRONTEND_IMAGE}:${BUILD_NUMBER}
-Backend Image  : ${BACKEND_IMAGE}:${BUILD_NUMBER}
+Frontend Image:
+${FRONTEND_IMAGE}:${BUILD_NUMBER}
+
+Backend Image:
+${BACKEND_IMAGE}:${BUILD_NUMBER}
 
 Build URL:
 ${env.BUILD_URL}
@@ -138,19 +171,11 @@ ${env.BUILD_URL}
 Regards,
 Jenkins CI/CD
 """,
-                to: "team@example.com"
-            )
-
-            // Slack Notification (Requires Slack Plugin)
-            slackSend(
-                channel: '#devops',
-                color: 'good',
-                message: """✅ *Build Successful*
-Job: ${env.JOB_NAME}
-Build: #${env.BUILD_NUMBER}
-URL: ${env.BUILD_URL}"""
+                to: "yourgmail@gmail.com"
             )
         }
+
+
 
         failure {
 
@@ -162,9 +187,18 @@ Rolling back deployments...
 =======================================
 """
 
+
             withKubeConfig(credentialsId: 'my-kubeconfig') {
-                sh "bash scripts/k8s-rollback.sh"
+
+                sh '''
+                    if [ -f scripts/k8s-rollback.sh ]; then
+                        bash scripts/k8s-rollback.sh
+                    else
+                        echo "Rollback script not found"
+                    fi
+                '''
             }
+
 
             emailext(
                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
@@ -182,29 +216,26 @@ Rollback has been initiated.
 Build URL:
 ${env.BUILD_URL}
 
-Please check the logs.
+Please check Jenkins logs.
 
 Regards,
 Jenkins CI/CD
 """,
-                to: "team@example.com"
-            )
-
-            // Slack Notification (Requires Slack Plugin)
-            slackSend(
-                channel: '#devops',
-                color: 'danger',
-                message: """❌ *Build Failed*
-Job: ${env.JOB_NAME}
-Build: #${env.BUILD_NUMBER}
-Rollback Initiated
-URL: ${env.BUILD_URL}"""
+                to: "yourgmail@gmail.com"
             )
         }
 
+
+
         always {
 
-            sh "bash scripts/cleanup.sh"
+            sh '''
+                if [ -f scripts/cleanup.sh ]; then
+                    bash scripts/cleanup.sh
+                else
+                    echo "Cleanup script not found"
+                fi
+            '''
 
             echo "Pipeline Finished"
 
