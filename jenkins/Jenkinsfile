@@ -3,9 +3,12 @@ pipeline {
     agent any
 
     environment {
-        FRONTEND_IMAGE = "deekshithc1/frontend"
+        FRONTEND_IMAGE = "deekshithc1/webappfrontend"
         BACKEND_IMAGE  = "deekshithc1/backend"
         NAMESPACE      = "webapp"
+
+        // Microsoft Teams Incoming Webhook URL
+        TEAMS_WEBHOOK = "https://outlook.office.com/webhook/..."
     }
 
     stages {
@@ -30,7 +33,7 @@ pipeline {
 
                     withSonarQubeEnv("SonarQube") {
                         sh """
-                        ${scannerHome}/bin/sonar-scanner
+                            ${scannerHome}/bin/sonar-scanner
                         """
                     }
                 }
@@ -66,7 +69,6 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )
                 ]) {
-
                     sh "bash scripts/docker-login.sh"
                 }
             }
@@ -78,11 +80,8 @@ pipeline {
             }
         }
 
-
         stage("Deploy to Kubernetes") {
-
             steps {
-
                 withKubeConfig(credentialsId: 'my-kubeconfig') {
 
                     withCredentials([
@@ -94,16 +93,15 @@ pipeline {
                     ]) {
 
                         sh """
-                        export MONGO_URI="mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.udec97z.mongodb.net/?appName=Cluster0"
+                            export MONGO_URI="mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.udec97z.mongodb.net/?appName=Cluster0"
 
-                        bash scripts/k8s-deploy.sh
+                            bash scripts/k8s-deploy.sh
                         """
                     }
                 }
             }
         }
     }
-
 
     post {
 
@@ -119,8 +117,27 @@ pipeline {
             Application deployed successfully.
             =======================================
             """
-        }
 
+            office365ConnectorSend(
+                webhookUrl: "${TEAMS_WEBHOOK}",
+                message: """
+✅ *Jenkins Pipeline Succeeded*
+
+**Job:** ${env.JOB_NAME}
+**Build:** #${env.BUILD_NUMBER}
+**Status:** SUCCESS
+
+Frontend Image:
+${FRONTEND_IMAGE}:${BUILD_NUMBER}
+
+Backend Image:
+${BACKEND_IMAGE}:${BUILD_NUMBER}
+
+Build URL:
+${env.BUILD_URL}
+"""
+            )
+        }
 
         failure {
 
@@ -132,18 +149,54 @@ pipeline {
             =======================================
             """
 
-            withKubeConfig(credentialsId: 'my-kubeconfig') {
-
-                sh "bash scripts/k8s-rollback.sh"
+            script {
+                try {
+                    withKubeConfig(credentialsId: 'my-kubeconfig') {
+                        sh "bash scripts/k8s-rollback.sh"
+                    }
+                    echo "Rollback completed successfully."
+                } catch (Exception e) {
+                    echo "Rollback failed: ${e.getMessage()}"
+                }
             }
-        }
 
+            office365ConnectorSend(
+                webhookUrl: "${TEAMS_WEBHOOK}",
+                message: """
+❌ *Jenkins Pipeline Failed*
+
+**Job:** ${env.JOB_NAME}
+**Build:** #${env.BUILD_NUMBER}
+**Status:** FAILURE
+
+Rollback attempted.
+
+Build URL:
+${env.BUILD_URL}
+"""
+            )
+        }
 
         always {
 
             sh "bash scripts/cleanup.sh"
 
             echo "Pipeline Finished"
+
+            office365ConnectorSend(
+                webhookUrl: "${TEAMS_WEBHOOK}",
+                message: """
+ℹ️ *Pipeline Finished*
+
+**Job:** ${env.JOB_NAME}
+**Build:** #${env.BUILD_NUMBER}
+
+Final Status: ${currentBuild.currentResult}
+
+Build URL:
+${env.BUILD_URL}
+"""
+            )
         }
     }
 }
