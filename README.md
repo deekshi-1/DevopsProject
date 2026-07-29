@@ -28,5 +28,17 @@ The project deliverables are organized inside the deliverables directory:
 
 - Key Tech: Prometheus, Grafana, SonarQube, Trivy, Kubernetes, Alertmanager.
 
+
+## Repository Structure & Branches
+### To maintain an organized workflow and separate our development environments, this repository utilizes the following branch structure
+- main: The primary branch containing the final, production-ready codebase and the complete project setup.
+- working: Dedicated to local development, deployment, and testing of the 3-tier web application.
+- k8s-testing: Contains the source code, pipelines, and configuration files for deploying the 3-tier web application using Jenkins, Docker, and Kubernetes (K8s).
+
+## Documentation
+ All comprehensive documentation and detailed explanations of the requested project deliverables can be found in the Deliverables directory.
+
+
 # 📖 Navigation
 Please refer to the specific README.md files located inside each corresponding deliverable folder (deliverables/1, deliverables/2, and deliverables/3) for detailed architecture diagrams, setup instructions, configuration files, and implementation guides.
+
