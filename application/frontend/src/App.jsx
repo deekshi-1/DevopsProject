@@ -1,34 +1,46 @@
 import { useState, useEffect } from 'react'
-import { healthCheck } from "./api";
+import { healthCheck, fetchNotes, createNote, deleteNote } from "./api";
 import './App.css'
 
 function App() {
   const [message, setMessage] = useState("Loading...");
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch data from the backend when the component loads
   useEffect(() => {
-  healthCheck()
-    .then((data) => {
-      setMessage(
-        `Backend Status: ${data.status}`
-      );
-    })
-    .catch(() => {
-      setMessage("Backend Error");
-    });
-}, []);
+    Promise.all([healthCheck(), fetchNotes()])
+      .then(([health, data]) => {
+        setMessage(`Backend Status: ${health.status}`);
+        setNotes(data);
+      })
+      .catch(() => {
+        setMessage("Backend Error");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
-  const addNote = () => {
+  const addNote = async () => {
     if (note.trim() === "") return;
 
-    setNotes([...notes, note]);
-    setNote("");
+    try {
+      const created = await createNote(note.trim());
+      setNotes((prev) => [created, ...prev]);
+      setNote("");
+    } catch {
+      setMessage("Backend Error");
+    }
   };
 
-  const removeNote = (index) => {
-    setNotes(notes.filter((_, i) => i !== index));
+  const removeNote = async (id) => {
+    try {
+      await deleteNote(id);
+      setNotes((prev) => prev.filter((item) => item._id !== id));
+    } catch {
+      setMessage("Backend Error");
+    }
   };
 
   return (
@@ -37,6 +49,7 @@ function App() {
 
         <div>
           <h1>Notes</h1>
+          <p>{message}</p>
         </div>
 
         <div className="note-input">
@@ -48,16 +61,17 @@ function App() {
             onKeyDown={(e) => {
               if (e.key === "Enter") addNote();
             }}
+            disabled={loading}
           />
 
-          <button onClick={addNote}>Add</button>
+          <button onClick={addNote} disabled={loading}>Add</button>
         </div>
 
         <ul className="notes-list">
-          {notes.map((item, index) => (
-            <li key={index}>
-              <span>{item}</span>
-              <button onClick={() => removeNote(index)}>X</button>
+          {notes.map((item) => (
+            <li key={item._id}>
+              <span>{item.message}</span>
+              <button onClick={() => removeNote(item._id)}>X</button>
             </li>
           ))}
         </ul>
